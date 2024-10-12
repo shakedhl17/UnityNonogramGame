@@ -1,71 +1,85 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class Level2Manager : MonoBehaviour
+public class Leve21Manager : MonoBehaviour
 {
-    public Button[] gridButtons;  // Assign buttons in the Unity Inspector
-    public Text livesText;        // Display lives
-    private int lives = 3;
-    private bool isXMode = true;
+    public Button[] gridButtons;  // Assign buttons from the Unity Inspector
+    public Text livesText;        // Text element to display lives
+
+    private int mistakes = 0;        // Player has 3 lives
+    public Image[] hearts; // Assign the hearts in the inspector
+
+    private List<int> correctButtons = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,    
+        10, 11, 12, 13, 14, 15, 16, 17, 18,
+        20, 21, 22, 23, 24, 25, 26, 27,
+        30, 31, 32, 33, 34, 35, 36,
+        40, 41, 42, 43, 44, 45,
+        50, 51, 52, 53, 54, 
+        60, 61, 62, 63,
+        70, 71, 72,
+        80, 81,
+        90};// List of correct buttons that should be clicked (black buttons)
+    private HashSet<int> clickedCorrectButtons = new HashSet<int>();// To track clicked correct buttons
 
     void Start()
     {
-        UpdateLivesUI();
-        AssignButtonListeners();
-    }
-
-    void AssignButtonListeners()
-    {
-        foreach (Button button in gridButtons)
+        // Add click listeners to buttons
+        for (int i = 0; i < gridButtons.Length; i++)
         {
-            button.onClick.AddListener(() => OnGridButtonClick(button));
+            int buttonIndex = i; // Capture the index for the lambda
+            gridButtons[buttonIndex].onClick.AddListener(() => OnButtonClick(buttonIndex));
         }
     }
 
-    void OnGridButtonClick(Button button)
+    void OnButtonClick(int index)
     {
-        if (isXMode)
+        // Check if the clicked button is a correct one
+        if (correctButtons.Contains(index))
         {
-            button.GetComponentInChildren<Text>().text = "X";
+            // Mark the button as clicked and turn it black
+            gridButtons[index].GetComponent<Image>().color = Color.black;
+            gridButtons[index].interactable = false; // Disable further clicks
+            clickedCorrectButtons.Add(index);
+
+            // Check for win condition
+            if (clickedCorrectButtons.Count == correctButtons.Count)
+            {
+                WinLevel();
+            }
         }
         else
         {
-            button.GetComponent<Image>().color = Color.black;
-        }
+            // If it's an incorrect button, remove a heart and check lose condition
+            mistakes++;
+            RemoveHeart();
 
-        if (CheckForMistake(button))
-        {
-            lives--;
-            UpdateLivesUI();
-            if (lives <= 0)
+            if (mistakes >= 3)
             {
-                GameOver();
+                LoseLevel();
             }
         }
     }
 
-    public void ToggleXOrColor()
+    void RemoveHeart()
     {
-        isXMode = !isXMode;
+        if (mistakes <= hearts.Length)
+        {
+            hearts[mistakes - 1].color = new Color(1, 1, 1, 0); // Set the alpha to 0 (transparent)
+        }
     }
 
-    void UpdateLivesUI()
+
+    void WinLevel()
     {
-        livesText.text = "Lives: " + lives;
+        // Load the Win scene
+        SceneManager.LoadScene("WinScene");
     }
 
-    bool CheckForMistake(Button button)
+    void LoseLevel()
     {
-        return false; // Implement mistake-checking logic
-    }
-
-    void GameOver()
-    {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("LoseScene");
-    }
-
-    public void WinLevel()
-    {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("WinScene");
+        // Load the Lose scene
+        SceneManager.LoadScene("LoseScene");
     }
 }

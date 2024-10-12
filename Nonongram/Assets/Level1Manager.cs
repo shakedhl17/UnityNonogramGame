@@ -8,7 +8,7 @@ public class Level1Manager : MonoBehaviour
     public Button[] gridButtons;  // Assign buttons from the Unity Inspector
     public Text livesText;        // Text element to display lives
   
-    private int mistakes = 3;        // Player has 3 lives
+    private int mistakes = 0;        // Player has 3 lives
     public Image[] hearts; // Assign the hearts in the inspector
 
     private List<int> correctButtons = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 20, 21, 23, 24 };// List of correct buttons that should be clicked (black buttons)
@@ -57,14 +57,15 @@ public class Level1Manager : MonoBehaviour
     {
         if (mistakes <= hearts.Length)
         {
-            hearts[mistakes - 1].enabled = false; // Disable heart image
+            hearts[mistakes - 1].color = new Color(1, 1, 1, 0); // Set the alpha to 0 (transparent)
         }
     }
+
 
     void WinLevel()
     {
         // Load the Win scene
-        SceneManager.LoadScene("WinScene");
+        SceneManager.LoadScene("Level2");
     }
 
     void LoseLevel()
